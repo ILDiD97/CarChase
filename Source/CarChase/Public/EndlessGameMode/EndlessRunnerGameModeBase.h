@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WaysSpawnerActor.h"
 #include "GameFramework/GameModeBase.h"
 #include "EndlessRunnerGameModeBase.generated.h"
 
@@ -17,4 +18,15 @@ class CARCHASE_API AEndlessRunnerGameModeBase : public AGameModeBase
 public:
 
 	AEndlessRunnerGameModeBase();
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWaysSpawnerActor> SpawnerClass;
+
+	UPROPERTY(VisibleAnywhere)
+	AWaysSpawnerActor* Spawner;
+	
+protected:
+	
+	virtual void BeginPlay() override;
+	
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ArrowComponent.h"
+#include "EndlessGameMode/Roads.h"
 #include "GameFramework/Actor.h"
 #include "WayActorClass.generated.h"
 
@@ -26,8 +27,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Start", DisplayName = "Start Arrow")
 	UArrowComponent* StartArrowComponent;
 
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ways", DisplayName = "Possible Ways")
+	//TArray<TSubclassOf<AWayActorClass>> PossibleWays;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ways", DisplayName = "Possible Ways")
-	TArray<TSubclassOf<AWayActorClass>> PossibleWays;
+	TMap<int64, TEnumAsByte<ERoadTypes>> PossibleWays;
 	
 public:	
 	// Called every frame

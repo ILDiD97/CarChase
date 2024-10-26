@@ -7,3 +7,8 @@ AEndlessRunnerGameModeBase::AEndlessRunnerGameModeBase()
 {
 	
 }
+
+void AEndlessRunnerGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+}
