@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "StartWayEventBoxComponent.h"
+
 #include "Components/ArrowComponent.h"
 #include "EndlessGameMode/Roads.h"
 #include "GameFramework/Actor.h"
@@ -21,20 +23,40 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Start",
+		DisplayName = "Pivot")
 	USceneComponent* Pivot;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Start", DisplayName = "Start Arrow")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,
+		Category = "Start", DisplayName = "Start Arrow")
 	UArrowComponent* StartArrowComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,
+		Category = "Start", DisplayName = "Start Box")
+	UStartWayEventBoxComponent* StartBoxComponent;
+	
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ways", DisplayName = "Possible Ways")
 	//TArray<TSubclassOf<AWayActorClass>> PossibleWays;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ways", DisplayName = "Possible Ways")
-	TMap<int64, TEnumAsByte<ERoadTypes>> PossibleWays;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,
+		Category = "Ways", DisplayName = "Possible Ways",
+		meta = (Bitmask, BitmaskEnum = ERoadTypes))
+	int64 PossibleWays;
+
+	UFUNCTION()
+	virtual void OnStartBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+	const FHitResult& SweepResult);
+	
+	UFUNCTION(BlueprintCallable)
+	void AddPossibleWay(ERoadTypes type);
+	
+	UFUNCTION(BlueprintCallable)
+	void RemovePossibleWay(ERoadTypes type);
 	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
 
 };

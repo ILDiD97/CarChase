@@ -3,22 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Roads.generated.h"
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
 enum ERoadTypes : int64
 {
 	None = 0,
-	Piazza   = 1 << 0, // 000...0001
-	Bivio    = 1 << 1, // 000...0010
+	Strada   = 1 << 0, // 000...0001
+	Piazza    = 1 << 1, // 000...0010
 	Incrocio = 1 << 2, // 000...0100
-	Strada   = 1 << 3  // 000...1000
+	Bivio   = 1 << 3  // 000...1000
 	// Aggiungi altri tipi di strada se necessario
 };
-/**
- * 
- */
-class CARCHASE_API Roads
+ENUM_CLASS_FLAGS(ERoadTypes);
+
+namespace Roads
 {
-public:
 	
-};
+}
+
+

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EndWayEventBoxComponent.h"
 #include "StreetBuild/WayActorClass.h"
 #include "StreetActorClass.generated.h"
 
@@ -22,7 +23,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "End Way", DisplayName = "End Arrow")
 	UArrowComponent* EndArrowComponent;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "End Way", DisplayName = "End Box")
+	UEndWayEventBoxComponent* EndWayBoxComponent;
+		
 public:
 	virtual void Tick(float DeltaTime) override;
 };

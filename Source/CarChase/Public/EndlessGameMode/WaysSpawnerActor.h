@@ -8,6 +8,17 @@
 #include "StreetBuild/WayActorClass.h"
 #include "WaysSpawnerActor.generated.h"
 
+USTRUCT(BlueprintType)
+struct FWaysContainer
+{
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(EditAnywhere)
+	TArray<TSubclassOf<AWayActorClass>> WayClasses;
+};
+
+
 UCLASS()
 class CARCHASE_API AWaysSpawnerActor : public AActor
 {
@@ -18,13 +29,16 @@ public:
 	AWaysSpawnerActor();
 
 	UPROPERTY(EditAnywhere)
-	TMap<int64, TEnumAsByte<ERoadTypes>>  SelectableWays;
+	TMap<TEnumAsByte<ERoadTypes>, FWaysContainer>  SelectableWays;
 	
 	UPROPERTY(EditAnywhere, Category = "Possible Ways")
 	TArray<TSubclassOf<AWayActorClass>> WayClasses;
 
 	UPROPERTY(VisibleAnywhere, Category = "Path")
 	TArray<AWayActorClass*> CurrentWays;
+
+	UFUNCTION(BlueprintCallable)
+    void GenerateNextWay(int64 Roadtype, FTransform NextTransform);
 	
 protected:
 	// Called when the game starts or when spawned

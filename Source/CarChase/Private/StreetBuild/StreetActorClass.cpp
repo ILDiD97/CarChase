@@ -12,6 +12,8 @@ AStreetActorClass::AStreetActorClass()
 	SetRootComponent(Pivot);
 	
 	EndArrowComponent = CreateDefaultSubobject<UArrowComponent>("End Arrow");
+
+	EndWayBoxComponent = CreateDefaultSubobject<UEndWayEventBoxComponent>("End Box");
 }
 
 void AStreetActorClass::BeginPlay()

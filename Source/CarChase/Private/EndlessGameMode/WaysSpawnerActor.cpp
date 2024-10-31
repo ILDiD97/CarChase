@@ -11,6 +11,10 @@ AWaysSpawnerActor::AWaysSpawnerActor()
 
 }
 
+void AWaysSpawnerActor::GenerateNextWay(int64 Roadtype, FTransform NextTransform)
+{
+}
+
 // Called when the game starts or when spawned
 void AWaysSpawnerActor::BeginPlay()
 {
