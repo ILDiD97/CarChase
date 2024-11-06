@@ -7,13 +7,19 @@ AStreetActorClass::AStreetActorClass()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 	Pivot = CreateDefaultSubobject<USceneComponent>("Pivot");
 	SetRootComponent(Pivot);
 	
-	EndArrowComponent = CreateDefaultSubobject<UArrowComponent>("End Arrow");
+	StartArrowComponent->SetupAttachment(Pivot);
 
+	StartBoxComponent->SetupAttachment(Pivot);
+	
+	EndArrowComponent = CreateDefaultSubobject<UArrowComponent>("End Arrow");
+	EndArrowComponent->SetupAttachment(Pivot);
+	
 	EndWayBoxComponent = CreateDefaultSubobject<UEndWayEventBoxComponent>("End Box");
+	EndWayBoxComponent->SetupAttachment(Pivot);
 }
 
 void AStreetActorClass::BeginPlay()

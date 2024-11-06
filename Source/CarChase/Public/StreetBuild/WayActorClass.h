@@ -34,9 +34,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,
 		Category = "Start", DisplayName = "Start Box")
 	UStartWayEventBoxComponent* StartBoxComponent;
-	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ways", DisplayName = "Possible Ways")
-	//TArray<TSubclassOf<AWayActorClass>> PossibleWays;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,
 		Category = "Ways", DisplayName = "Possible Ways",

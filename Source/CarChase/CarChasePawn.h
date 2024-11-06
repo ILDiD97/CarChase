@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "WheeledVehiclePawn.h"
+#include "Player/VRHandControllerComponent.h"
 #include "CarChasePawn.generated.h"
 
 class UCameraComponent;
@@ -29,7 +30,7 @@ class ACarChasePawn : public AWheeledVehiclePawn
 	/** Spring Arm for the front camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* FrontSpringArm;
-
+	
 	/** Front Camera component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FrontCamera;
@@ -136,4 +137,50 @@ public:
 	FORCEINLINE UCameraComponent* GetBackCamera() const { return BackCamera; }
 	/** Returns the cast Chaos Vehicle Movement subobject */
 	FORCEINLINE const TObjectPtr<UChaosWheeledVehicleMovementComponent>& GetChaosVehicleMovement() const { return ChaosVehicleMovement; }
+
+	//Custom
+	UPROPERTY(VisibleAnywhere, Category = "VR")
+	USceneComponent* VROrigin;
+	
+	UPROPERTY(VisibleAnywhere, Category = "VR")
+	UVRHandControllerComponent* LeftHandController;
+	
+	UPROPERTY(VisibleAnywhere, Category = "VR")
+	UVRHandControllerComponent* RightHandController;
+	
+	// Camera per la visuale VR
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "VR")
+	UCameraComponent* FirstPersonCamera;
+	
+	// Stato di afferramento del volante
+	UPROPERTY(VisibleAnywhere, Category = "VR")
+	bool bIsGrabbingWheel = false;
+	
+	UPROPERTY(VisibleAnywhere, Category = "VR")
+	bool bIsUsingRightHand = true;  // Specifica quale mano sta afferrando
+
+	// Rotazione iniziale della mano e del volante
+	UPROPERTY(VisibleAnywhere, Category = "VR")
+	FQuat InitialHandRotation;
+	
+	UPROPERTY(VisibleAnywhere, Category = "VR")
+	FQuat InitialWheelRotation;
+
+	// Funzione per ottenere la rotazione corrente del controller VR attivo
+	// UFUNCTION(BlueprintCallable)
+	// FQuat GetControllerRotation(bool bIsRightHand) const;
+	
+	// Funzioni per gestire l'interazione con il volante
+	// UPROPERTY(BlueprintCallable)
+	// void GrabWheel(bool bUseRightHand);
+	//
+	// UPROPERTY(BlueprintCallable)
+	// void ReleaseWheel(bool bUseRightHand);
+	//
+	// UPROPERTY(BlueprintCallable)
+	// void UpdateSteeringWheelRotation();
+	//
+	// UPROPERTY(BlueprintCallable)
+	// void ReturnSteeringWheelToCenter(float DeltaTime);
+	
 };

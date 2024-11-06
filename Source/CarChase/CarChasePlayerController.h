@@ -26,6 +26,7 @@ protected:
 	UInputMappingContext* InputMappingContext;
 
 	/** Pointer to the controlled vehicle pawn */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<ACarChasePawn> VehiclePawn;
 
 	/** Type of the UI to spawn */

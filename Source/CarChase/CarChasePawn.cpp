@@ -52,6 +52,33 @@ ACarChasePawn::ACarChasePawn()
 	// get the Chaos Wheeled movement component
 	ChaosVehicleMovement = CastChecked<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
 
+	VROrigin = CreateDefaultSubobject<USceneComponent>(TEXT("PlayerPivot"));
+	
+	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	FirstPersonCamera->SetupAttachment(VROrigin);
+	FirstPersonCamera->bUsePawnControlRotation = true;
+	
+	LeftHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("LeftHandController"));
+	
+	// LeftHandController->MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftController"));
+	// LeftHandController->MotionController->SetupAttachment(VROrigin);
+	// LeftHandController->MotionController->MotionSource = FName("Left");
+	//
+	// LeftHandController->HandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("LeftHandMesh"));
+	// LeftHandController->HandMesh->SetupAttachment(LeftHandController->MotionController);
+	// LeftHandController->HandMesh->SetRelativeRotation(
+	// 	FRotator(-25.000000,-179.999999,89.999999));
+	
+	RightHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("RightHandController"));
+	
+	// RightHandController->MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightController"));
+	// RightHandController->MotionController->MotionSource = FName("Right");
+	// RightHandController->MotionController->SetupAttachment(VROrigin);
+	//
+	// RightHandController->HandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("RightHandMesh"));
+	// RightHandController->HandMesh->SetupAttachment(RightHandController->MotionController);
+	// RightHandController->HandMesh->SetRelativeRotation(
+	// 	FRotator(25.000000,0.000000,89.999999));
 }
 
 void ACarChasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -182,7 +209,7 @@ void ACarChasePawn::ToggleCamera(const FInputActionValue& Value)
 	bFrontCameraActive = !bFrontCameraActive;
 
 	FrontCamera->SetActive(bFrontCameraActive);
-	BackCamera->SetActive(!bFrontCameraActive);
+	//FirstPersonCamera->SetActive(!bFrontCameraActive);
 }
 
 void ACarChasePawn::ResetVehicle(const FInputActionValue& Value)
@@ -203,5 +230,36 @@ void ACarChasePawn::ResetVehicle(const FInputActionValue& Value)
 
 	UE_LOG(LogTemplateVehicle, Error, TEXT("Reset Vehicle"));
 }
+
+// FQuat ACarChasePawn::GetControllerRotation(bool bIsRightHand) const
+// {
+// 	if (bIsRightHand && RightHandController)
+// 	{
+// 		return RightHandController->MotionController->GetComponentRotation().Quaternion();
+// 	}
+// 	else if (!bIsRightHand && LeftHandController)
+// 	{
+// 		return LeftHandController->MotionController->GetComponentRotation().Quaternion();
+// 	}
+//
+// 	// Ritorna un Quat identità nel caso in cui il controller specificato non sia valido
+// 	return FQuat::Identity;
+// }
+
+// void ACarChasePawn::GrabWheel(bool bUseRightHand)
+// {
+// }
+//
+// void ACarChasePawn::ReleaseWheel(bool bUseRightHand)
+// {
+// }
+//
+// void ACarChasePawn::UpdateSteeringWheelRotation()
+// {
+// }
+//
+// void ACarChasePawn::ReturnSteeringWheelToCenter(float DeltaTime)
+// {
+// }
 
 #undef LOCTEXT_NAMESPACE
