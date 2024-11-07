@@ -139,32 +139,32 @@ public:
 	FORCEINLINE const TObjectPtr<UChaosWheeledVehicleMovementComponent>& GetChaosVehicleMovement() const { return ChaosVehicleMovement; }
 
 	//Custom
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	USceneComponent* VROrigin;
-	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	UVRHandControllerComponent* LeftHandController;
-	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	UVRHandControllerComponent* RightHandController;
-	
-	// Camera per la visuale VR
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "VR")
-	UCameraComponent* FirstPersonCamera;
-	
-	// Stato di afferramento del volante
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	bool bIsGrabbingWheel = false;
-	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	bool bIsUsingRightHand = true;  // Specifica quale mano sta afferrando
-
-	// Rotazione iniziale della mano e del volante
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	FQuat InitialHandRotation;
-	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	FQuat InitialWheelRotation;
+	// UPROPERTY(VisibleAnywhere, Category = "VR")
+	// USceneComponent* VROrigin;
+	//
+	// UPROPERTY(VisibleAnywhere, Category = "VR")
+	// UVRHandControllerComponent* LeftHandController;
+	//
+	// UPROPERTY(VisibleAnywhere, Category = "VR")
+	// UVRHandControllerComponent* RightHandController;
+	//
+	// // Camera per la visuale VR
+	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "VR")
+	// UCameraComponent* FirstPersonCamera;
+	//
+	// // Stato di afferramento del volante
+	// UPROPERTY(VisibleAnywhere, Category = "VR")
+	// bool bIsGrabbingWheel = false;
+	//
+	// UPROPERTY(VisibleAnywhere, Category = "VR")
+	// bool bIsUsingRightHand = true;  // Specifica quale mano sta afferrando
+	//
+	// // Rotazione iniziale della mano e del volante
+	// UPROPERTY(VisibleAnywhere, Category = "VR")
+	// FQuat InitialHandRotation;
+	//
+	// UPROPERTY(VisibleAnywhere, Category = "VR")
+	// FQuat InitialWheelRotation;
 
 	// Funzione per ottenere la rotazione corrente del controller VR attivo
 	// UFUNCTION(BlueprintCallable)

@@ -52,13 +52,13 @@ ACarChasePawn::ACarChasePawn()
 	// get the Chaos Wheeled movement component
 	ChaosVehicleMovement = CastChecked<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
 
-	VROrigin = CreateDefaultSubobject<USceneComponent>(TEXT("PlayerPivot"));
+	// VROrigin = CreateDefaultSubobject<USceneComponent>(TEXT("PlayerPivot"));
+	//
+	// FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	// FirstPersonCamera->SetupAttachment(VROrigin);
+	// FirstPersonCamera->bUsePawnControlRotation = true;
 	
-	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	FirstPersonCamera->SetupAttachment(VROrigin);
-	FirstPersonCamera->bUsePawnControlRotation = true;
-	
-	LeftHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("LeftHandController"));
+	//LeftHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("LeftHandController"));
 	
 	// LeftHandController->MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("LeftController"));
 	// LeftHandController->MotionController->SetupAttachment(VROrigin);
@@ -69,7 +69,7 @@ ACarChasePawn::ACarChasePawn()
 	// LeftHandController->HandMesh->SetRelativeRotation(
 	// 	FRotator(-25.000000,-179.999999,89.999999));
 	
-	RightHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("RightHandController"));
+	//RightHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("RightHandController"));
 	
 	// RightHandController->MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("RightController"));
 	// RightHandController->MotionController->MotionSource = FName("Right");

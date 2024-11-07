@@ -11,6 +11,8 @@ UVRHandControllerComponent::UVRHandControllerComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
+	MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Controller"));
+	HandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HandMesh"));
 	// ...
 }
 
