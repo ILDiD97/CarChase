@@ -27,6 +27,7 @@ class ACarChasePawn : public AWheeledVehiclePawn
 {
 	GENERATED_BODY()
 
+protected:
 	/** Spring Arm for the front camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* FrontSpringArm;
@@ -45,8 +46,6 @@ class ACarChasePawn : public AWheeledVehiclePawn
 
 	/** Cast pointer to the Chaos Vehicle movement component */
 	TObjectPtr<UChaosWheeledVehicleMovementComponent> ChaosVehicleMovement;
-
-protected:
 
 	/** Steering Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
@@ -97,30 +96,30 @@ public:
 protected:
 
 	/** Handles steering input */
-	void Steering(const FInputActionValue& Value);
+	virtual void Steering(const FInputActionValue& Value);
 
 	/** Handles throttle input */
-	void Throttle(const FInputActionValue& Value);
+	virtual void Throttle(const FInputActionValue& Value);
 
 	/** Handles brake input */
-	void Brake(const FInputActionValue& Value);
+	virtual void Brake(const FInputActionValue& Value);
 
 	/** Handles brake start/stop inputs */
-	void StartBrake(const FInputActionValue& Value);
-	void StopBrake(const FInputActionValue& Value);
+	virtual void StartBrake(const FInputActionValue& Value);
+	virtual void StopBrake(const FInputActionValue& Value);
 
 	/** Handles handbrake start/stop inputs */
-	void StartHandbrake(const FInputActionValue& Value);
-	void StopHandbrake(const FInputActionValue& Value);
+	virtual void StartHandbrake(const FInputActionValue& Value);
+	virtual void StopHandbrake(const FInputActionValue& Value);
 
 	/** Handles look around input */
-	void LookAround(const FInputActionValue& Value);
+	virtual void LookAround(const FInputActionValue& Value);
 
 	/** Handles toggle camera input */
-	void ToggleCamera(const FInputActionValue& Value);
+	virtual void ToggleCamera(const FInputActionValue& Value);
 
 	/** Handles reset vehicle input */
-	void ResetVehicle(const FInputActionValue& Value);
+	virtual void ResetVehicle(const FInputActionValue& Value);
 
 	/** Called when the brake lights are turned on or off */
 	UFUNCTION(BlueprintImplementableEvent, Category="Vehicle")

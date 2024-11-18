@@ -145,6 +145,7 @@ void ACarChasePawn::Steering(const FInputActionValue& Value)
 
 void ACarChasePawn::Throttle(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Hello World"));
 	// get the input magnitude for the throttle
 	float ThrottleValue = Value.Get<float>();
 
