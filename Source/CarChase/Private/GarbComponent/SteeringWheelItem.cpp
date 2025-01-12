@@ -167,16 +167,18 @@ float ASteeringWheelItem::GetSteeringInput()
 	{
 		YawValue += 180;
 	}
+	
 	// Mappatura del valore di yaw da [-180, 180] a [-1, 1]
 	TRange<float> InputRange(-180.0f,180.0f);
 	TRange<float> OutputRange(-1.0f, 1.0f);
 	float ClampedRange = FMath::GetMappedRangeValueClamped(
 		InputRange, OutputRange, YawValue);
-	GEngine->AddOnScreenDebugMessage
-	(-1, 5.f, FColor::Yellow,
-		FString::Printf(
-			TEXT("Yaw Value: %f, Normal: %f"),
-			YawValue, ClampedRange));
+	
+	// GEngine->AddOnScreenDebugMessage
+	// (-1, 5.f, FColor::Yellow,
+	// 	FString::Printf(
+	// 		TEXT("Yaw Value: %f, Normal: %f"),
+	// 		YawValue, ClampedRange));
 
 	return ClampedRange;
 }

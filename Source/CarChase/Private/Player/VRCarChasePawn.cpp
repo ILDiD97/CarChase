@@ -207,6 +207,9 @@ void AVRCarChasePawn::Tick(float Delta)
 
 void AVRCarChasePawn::LeftAction(const FInputActionValue& Value)
 {
+	if(!LeftHandController->IsGrabbing())
+		LeftHandController->Release();
+	
 	if(LeftHandController->IsGrabbing())
 		LeftHandController->Grab();
 	else
@@ -216,6 +219,9 @@ void AVRCarChasePawn::LeftAction(const FInputActionValue& Value)
 
 void AVRCarChasePawn::RightAction(const FInputActionValue& Value)
 {
+	if(!RightHandController->IsGrabbing())
+		RightHandController->Release();
+	
 	if(RightHandController->IsGrabbing())
 		RightHandController->Grab();
 	else
@@ -225,12 +231,10 @@ void AVRCarChasePawn::RightAction(const FInputActionValue& Value)
 
 void AVRCarChasePawn::LeftRelease(const FInputActionValue& Value)
 {
-	if(!RightHandController->IsGrabbing())
-		RightHandController->Release();
+	
 }
 
 void AVRCarChasePawn::RightRelease(const FInputActionValue& Value)
 {
-	if(!LeftHandController->IsGrabbing())
-		LeftHandController->Release();
+	
 }

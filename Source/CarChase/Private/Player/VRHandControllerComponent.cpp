@@ -143,7 +143,8 @@ void UVRHandControllerComponent::ToGrip()
 
 void UVRHandControllerComponent::Free()
 {
-	HandPivot->AttachToComponent(MotionController, FAttachmentTransformRules::KeepWorldTransform);
+	HandPivot->AttachToComponent(MotionController, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	HandPivot->SetRelativeRotation(FRotator(0,0,90));
 }
 
 
