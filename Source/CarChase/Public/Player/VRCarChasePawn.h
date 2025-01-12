@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "InputTriggers.h"
+#include "IXRTrackingSystem.h"
 #include "GarbComponent/SteeringWheelItem.h"
 #include "VRCarChasePawn.generated.h"
 
@@ -50,7 +51,25 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	
 	virtual void Tick(float Delta) override;
+	
+	UFUNCTION()
+	void LeftAction(const FInputActionValue& Value);
 
+	UFUNCTION()
+	void RightAction(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void LeftRelease(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void RightRelease(const FInputActionValue& Value);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VRInput")
+	UInputAction* LeftGrabAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "VRInput")
+	UInputAction* RightGrabAction;
+	
 	UPROPERTY(VisibleAnywhere, Category = "VR")
 	USceneComponent* VROrigin;
 	
@@ -76,19 +95,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "VR")
 	UCameraComponent* FirstPersonCamera;
 	
-	// Stato di afferramento del volante
 	UPROPERTY(VisibleAnywhere, Category = "VR")
-	bool bIsGrabbingWheel = false;
-	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	bool bIsUsingRightHand = true;  // Specifica quale mano sta afferrando
-	
-	// Rotazione iniziale della mano e del volante
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	FQuat InitialHandRotation;
-	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	FQuat InitialWheelRotation;
+	bool bIsUsingRightHand;  // Specifica quale mano sta afferrando
 
 	
 };

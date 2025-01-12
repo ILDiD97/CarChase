@@ -18,10 +18,24 @@ public:
 	ASteeringWheelItem();
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USceneComponent* Pivot;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* SteeringWheel;
 	
-	UPROPERTY(VisibleAnywhere, Category = "Init")
+	UPROPERTY(EditAnywhere, Category = "Init")
 	FRotator InitialRotation;
+	
+	// Ultima posizione del controller
+	UPROPERTY(VisibleAnywhere, Category = "Init")
+	FVector LastControllerPosition;
+
+	// Sensibilità della rotazione
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR")
+	float RotationSensitivity = 10.0f;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Init")
+	FVector InitialHandPosition;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Init")
 	FRotator HeldRotation;
@@ -30,7 +44,7 @@ public:
 	UCurveFloat* BackToInit;
 	
 	UPROPERTY(VisibleAnywhere, Category = "WheelStats")
-	float MaxSteeringAngle = 179.0f;
+	double MaxSteeringAngle = 179.0f;
 	
 protected:
 	
@@ -51,5 +65,10 @@ protected:
 	virtual void RotateTowardsInit();
 
 public:
+	UFUNCTION(BlueprintCallable)
+	float GetSteeringInput();
+
 	virtual void Tick(float DeltaTime) override;
+	
+	virtual void GrabPoint(UMotionControllerComponent* controller, FVector position) override;
 };

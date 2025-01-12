@@ -3,6 +3,7 @@
 #include "Player/VRHandControllerComponent.h"
 #include "MotionControllerComponent.h"
 #include "Engine/World.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values for this component's properties
 UVRHandControllerComponent::UVRHandControllerComponent()
@@ -12,6 +13,7 @@ UVRHandControllerComponent::UVRHandControllerComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Controller"));
+	HandPivot = CreateDefaultSubobject<UArrowComponent>(TEXT("HandPivot"));
 	HandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HandMesh"));
 	// ...
 }
@@ -26,44 +28,55 @@ void UVRHandControllerComponent::BeginPlay()
 	
 }
 
-
-// FQuat UVRHandControllerComponent::GetControllerRotation(bool bIsRightHand) const
-// {
-// 	return bIsRightHand ? RightController->GetComponentQuat()
-// 		: LeftController->GetComponentQuat();
-// }
-
-void UVRHandControllerComponent::Grab(bool bIsRightHand)
+void UVRHandControllerComponent::Grab()
 {
-	if (bIsRightHand)
+	FVector ControllerLoc = MotionController->GetComponentLocation();
+	TArray<AActor*> ActorToIgnore;
+	TArray<FHitResult> HitResults;
+	UKismetSystemLibrary::SphereTraceMulti(GetWorld(), ControllerLoc, ControllerLoc,
+		GrabRadius, TraceTypeQuery1, false, ActorToIgnore,
+		EDrawDebugTrace::ForDuration, HitResults,false,
+		FLinearColor::Red, FLinearColor::Green, 1.f);
+
+	TArray<AGrabItemComponent*> GrabsItems;
+	if(HitResults.Num() > 0)
 	{
-		bIsRightHandGrabbing = true;
-		bIsLeftHandGrabbing = false;
+		for (auto HitResult : HitResults)
+		{
+			AGrabItemComponent* controlActor;
+			controlActor = Cast<AGrabItemComponent>(HitResult.GetActor());
+			if(controlActor)
+			{
+				GrabsItems.Add(controlActor);
+			}
+		}
 	}
 	else
 	{
-		bIsRightHandGrabbing = false;
-		bIsLeftHandGrabbing = true;
+		return;
 	}
+
+	if(GrabsItems.Num() > 0)
+	{
+		GrabbedActor = GrabsItems[0];
+	}
+	else
+	{
+		return;
+	}
+
+	GrabbedActor->OnGrip(MotionController);
 }
 
-void UVRHandControllerComponent::Release(bool bIsRightHand)
+void UVRHandControllerComponent::Release()
 {
-	if (bIsRightHand)
-	{
-		bIsRightHandGrabbing = true;
-		bIsLeftHandGrabbing = false;
-	}
-	else
-	{
-		bIsRightHandGrabbing = false;
-		bIsLeftHandGrabbing = true;
-	}
+	GrabbedActor->OnLeave(MotionController);
+	GrabbedActor = nullptr;
 }
 
 bool UVRHandControllerComponent::IsGrabbing() const
 {
-	return bIsLeftHandGrabbing || bIsRightHandGrabbing;
+	return GrabbedActor == nullptr;
 }
 
 // Called every frame
@@ -71,22 +84,67 @@ void UVRHandControllerComponent::TickComponent(float DeltaTime, ELevelTick TickT
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if(GrabbedActor)
+		HandCaseAttach();
+	else
+		Free();
 	// ...
 }
 
-void UVRHandControllerComponent::SetHand(EControllerHand Hand)
+void UVRHandControllerComponent::HandCaseAttach()
 {
-	MotionController->SetTrackingSource(Hand);
-
-	// Carica una mesh specifica per la mano sinistra o destra
-	FString HandMeshPath = Hand == EControllerHand::Left ?
-		TEXT("/Game/Characters/MannequinsXR/Meshes/SKM_MannyXR_left") :
-		TEXT("/Game/Characters/MannequinsXR/Meshes/SKM_MannyXR_right");
-
-	USkeletalMesh* MeshAsset = Cast<USkeletalMesh>(StaticLoadObject(USkeletalMesh::StaticClass(), nullptr, *HandMeshPath));
-	if (MeshAsset)
+	switch (GrabbedActor->GrabType)
 	{
-		HandMesh->SetSkeletalMesh(MeshAsset);
+	case EGrabType::Free:
+		break;
+	case EGrabType::GripTo:
+		GrabPointTo();
+		GripTo();
+		break;
+	case EGrabType::ToGrip:
+		break;
+	default:
+		break;
 	}
 }
+
+void UVRHandControllerComponent::GripTo()
+{
+	USceneComponent* CurrentPosition = MotionController->MotionSource == "Right" ?
+		GrabbedActor->RightHandPivot :
+		GrabbedActor->LeftHandPivot;
+	HandPivot->AttachToComponent(CurrentPosition, FAttachmentTransformRules::KeepWorldTransform);
+}
+
+void UVRHandControllerComponent::GrabPointTo()
+{
+	FVector TraceStart = MotionController->GetComponentLocation();
+	FVector TraceEnd = GrabbedActor->GetActorLocation();
+
+	FHitResult HitResult;
+
+	// Effettua il line trace senza parametri aggiuntivi
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility))
+	{
+		// Controlla se il colpo è sulla mesh del volante
+		if (HitResult.GetActor() == GrabbedActor)
+		{
+			// Punto di impatto sulla mesh del volante
+			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 5.0f, 12, FColor::Blue, false, 1.0f);
+			GrabbedActor->GrabPoint(MotionController, HitResult.ImpactPoint);
+		}
+	}
+}
+
+void UVRHandControllerComponent::ToGrip()
+{
+	
+}
+
+void UVRHandControllerComponent::Free()
+{
+	HandPivot->AttachToComponent(MotionController, FAttachmentTransformRules::KeepWorldTransform);
+}
+
+
 

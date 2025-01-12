@@ -27,6 +27,10 @@ void AGrabItemComponent::Action()
 {
 }
 
+void AGrabItemComponent::GrabPoint(UMotionControllerComponent* controller, FVector position)
+{
+}
+
 // Called when the game starts or when spawned
 void AGrabItemComponent::BeginPlay()
 {

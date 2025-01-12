@@ -3,34 +3,40 @@
 
 #include "Player/VRCarChasePawn.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
+#include "Components/ArrowComponent.h"
 
 
 AVRCarChasePawn::AVRCarChasePawn()
 {
 	
-	 VROrigin = CreateDefaultSubobject<USceneComponent>(TEXT("PlayerPivot"));
-	 VROrigin->SetupAttachment(RootComponent);
+	VROrigin = CreateDefaultSubobject<USceneComponent>(TEXT("PlayerPivot"));
+	VROrigin->SetupAttachment(RootComponent);
 	
-	 FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	 FirstPersonCamera->SetupAttachment(VROrigin);
+	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	FirstPersonCamera->SetupAttachment(VROrigin);
 	
-	 LeftHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("LeftHandController"));
 	
-	 LeftHandController->MotionController->SetupAttachment(VROrigin);
-	 LeftHandController->MotionController->MotionSource = FName("Left");
+	LeftHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("LeftHandController"));
 	
-	 LeftHandController->HandMesh->SetupAttachment(LeftHandController->MotionController);
-	 LeftHandController->HandMesh->SetRelativeRotation(
-	 	FRotator(-25.000000,-179.999999,89.999999));
+	LeftHandController->MotionController->SetupAttachment(VROrigin);
+	LeftHandController->MotionController->MotionSource = FName("Left");
+
+	LeftHandController->HandPivot->SetupAttachment(VROrigin);
+	LeftHandController->HandPivot->SetRelativeRotation(
+		 FRotator(-25.000000,-179.999999,89.999999));
 	
-	 RightHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("RightHandController"));
+	LeftHandController->HandMesh->SetupAttachment(LeftHandController->HandPivot);
 	
-	 RightHandController->MotionController->MotionSource = FName("Right");
-	 RightHandController->MotionController->SetupAttachment(VROrigin);
+	RightHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("RightHandController"));
 	
-	 RightHandController->HandMesh->SetupAttachment(RightHandController->MotionController);
-	 RightHandController->HandMesh->SetRelativeRotation(
-	 	FRotator(25.000000,0.000000,89.999999));
+	RightHandController->MotionController->MotionSource = FName("Right");
+	RightHandController->MotionController->SetupAttachment(VROrigin);
+
+	RightHandController->HandPivot->SetupAttachment(VROrigin);
+	RightHandController->HandPivot->SetRelativeRotation(
+		FRotator(25.000000,0.000000,89.999999));
+	
+	RightHandController->HandMesh->SetupAttachment(RightHandController->HandPivot);
 
 	SteeringWheelComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("SteeringWheelComponent"));
 	SteeringWheelComponent->SetupAttachment(VROrigin);
@@ -46,11 +52,9 @@ void AVRCarChasePawn::Steering(const FInputActionValue& Value)
 
 void AVRCarChasePawn::Throttle(const FInputActionValue& Value)
 {
-	if(ChaosVehicleMovement)
-		UE_LOG(LogTemp, Warning, TEXT("Hello World"));
 	// get the input magnitude for the throttle
 	float ThrottleValue = Value.Get<float>();
-
+	
 	// add the input
 	ChaosVehicleMovement->SetThrottleInput(ThrottleValue);
 }
@@ -126,7 +130,24 @@ void AVRCarChasePawn::ResetVehicle(const FInputActionValue& Value)
 void AVRCarChasePawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	FirstPersonCamera->SetWorldLocation(VROrigin->GetComponentLocation());
+	FirstPersonCamera->SetWorldRotation(VROrigin->GetComponentRotation());
+	// Accedi al sistema XR
+	IHeadMountedDisplay* HMD = GEngine->XRSystem->GetHMDDevice();
+
+	// Accedi al sistema XR
+	if (GEngine->XRSystem.IsValid())
+	{
+		IXRTrackingSystem* XRSystem = GEngine->XRSystem.Get();
+		
+		// Imposta il tracking origin
+		XRSystem->SetTrackingOrigin(EHMDTrackingOrigin::Local);
+		// Oppure usa EHMDTrackingOrigin::Floor
+	}
+	
 	SteeringWheel = Cast<ASteeringWheelItem>(SteeringWheelComponent->GetChildActor());
+	
 }
 
 void AVRCarChasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -160,6 +181,14 @@ void AVRCarChasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInp
 
 		// reset the vehicle 
 		EnhancedInputComponent->BindAction(ResetVehicleAction, ETriggerEvent::Triggered, this, &AVRCarChasePawn::ResetVehicle);
+
+		EnhancedInputComponent->BindAction(LeftGrabAction, ETriggerEvent::Started, this, &AVRCarChasePawn::LeftAction);
+		EnhancedInputComponent->BindAction(LeftGrabAction, ETriggerEvent::Ongoing, this, &AVRCarChasePawn::LeftAction);
+		EnhancedInputComponent->BindAction(LeftGrabAction, ETriggerEvent::Canceled, this, &AVRCarChasePawn::LeftRelease);
+		
+		EnhancedInputComponent->BindAction(RightGrabAction, ETriggerEvent::Started, this, &AVRCarChasePawn::RightAction);
+		EnhancedInputComponent->BindAction(RightGrabAction, ETriggerEvent::Ongoing, this, &AVRCarChasePawn::RightAction);
+		EnhancedInputComponent->BindAction(RightGrabAction, ETriggerEvent::Canceled, this, &AVRCarChasePawn::RightRelease);
 	}
 	else
 	{
@@ -170,4 +199,38 @@ void AVRCarChasePawn::SetupPlayerInputComponent(class UInputComponent* PlayerInp
 void AVRCarChasePawn::Tick(float Delta)
 {
 	Super::Tick(Delta);
+
+	float input = SteeringWheel->GetSteeringInput();
+	//UE_LOG(LogTemp, Log, TEXT("PrimaryController: %f"), input);
+	ChaosVehicleMovement->SetSteeringInput(input);
+}
+
+void AVRCarChasePawn::LeftAction(const FInputActionValue& Value)
+{
+	if(LeftHandController->IsGrabbing())
+		LeftHandController->Grab();
+	else
+		LeftHandController->GrabPointTo();
+	
+}
+
+void AVRCarChasePawn::RightAction(const FInputActionValue& Value)
+{
+	if(RightHandController->IsGrabbing())
+		RightHandController->Grab();
+	else
+		RightHandController->GrabPointTo();
+}
+
+
+void AVRCarChasePawn::LeftRelease(const FInputActionValue& Value)
+{
+	if(!RightHandController->IsGrabbing())
+		RightHandController->Release();
+}
+
+void AVRCarChasePawn::RightRelease(const FInputActionValue& Value)
+{
+	if(!LeftHandController->IsGrabbing())
+		LeftHandController->Release();
 }

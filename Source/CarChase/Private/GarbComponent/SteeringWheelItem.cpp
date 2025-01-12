@@ -3,26 +3,41 @@
 
 #include "GarbComponent/SteeringWheelItem.h"
 
+#include "Kismet/KismetMathLibrary.h"
+
 ASteeringWheelItem::ASteeringWheelItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Configura il componente del volante
+	Pivot = CreateDefaultSubobject<USceneComponent>(TEXT("Pivot"));
+	SetRootComponent(Pivot);
+	
 	SteeringWheel = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SteeringWheel"));
 	SteeringWheel->SetupAttachment(RootComponent);
+
+	LeftHandPivot = CreateDefaultSubobject<USceneComponent>("LeftPivot");
+	LeftHandPivot->SetupAttachment(SteeringWheel);
+	
+	RightHandPivot = CreateDefaultSubobject<USceneComponent>("RightPivot");
+	RightHandPivot->SetupAttachment(SteeringWheel);
 }
 
 void ASteeringWheelItem::BeginPlay()
 {
 	Super::BeginPlay();
-	InitialRotation = SteeringWheel->GetComponentRotation();
 }
 
 void ASteeringWheelItem::OnGrip(UMotionControllerComponent* controller)
 {
 	Super::OnGrip(controller);
+
+	if (!controller)
+	{
+		return;
+	}
 	
-	HeldRotation = SteeringWheel->GetComponentRotation();
+	HeldRotation = Pivot->GetRelativeRotation();
 	
 	if(controller->MotionSource == "Right")
 	{
@@ -32,35 +47,43 @@ void ASteeringWheelItem::OnGrip(UMotionControllerComponent* controller)
 	{
 		LeftController = controller;
 	}
+	
 	if(!PrimaryController) PrimaryController = controller;
+	
+	InitialHandPosition = PrimaryController->GetRelativeLocation();
 }
-
 
 void ASteeringWheelItem::OnLeave(UMotionControllerComponent* controller)
 {
 	Super::OnLeave(controller);
 	
-	if(controller->MotionSource == "Right")
+	if (!controller)
+	{
+		return; // Assicura che il puntatore non sia nullo
+	}
+
+	// Controlla la sorgente del controller (FName e non FString)
+	if (controller->MotionSource == FName("Right"))
 	{
 		RightController = nullptr;
 	}
-	else
+	else if (controller->MotionSource == FName("Left"))
 	{
 		LeftController = nullptr;
 	}
 
-	if(!RightController && !LeftController)
+	// Aggiorna il PrimaryController in base ai controller attualmente attivi
+	if (RightController != nullptr && LeftController != nullptr)
 	{
-		PrimaryController = nullptr;
-	}
-	else if(!RightController)
-	{
-		PrimaryController = LeftController;
+		PrimaryController = nullptr; // Nessun controller in uso
 	}
 	else
 	{
-		PrimaryController = RightController;
+		// Dai priorità al controller sinistro, se disponibile
+		PrimaryController = LeftController == nullptr ? RightController : LeftController;
 	}
+
+	UE_LOG(LogTemp, Log, TEXT("PrimaryController: %s"), PrimaryController ? *PrimaryController->GetName() : TEXT("None"));
 }
 
 void ASteeringWheelItem::OnAction()
@@ -75,51 +98,115 @@ void ASteeringWheelItem::Action()
 }
 
 void ASteeringWheelItem::RotateTowardsHand()
-{
-	// Ottieni la posizione del volante
-	FVector WheelPosition = SteeringWheel->GetComponentLocation();
+{	
+	// 1. Ottieni la posizione globale della mano (SteeringMC)
+	// e del volante (SteeringWheel)
+	FVector SteeringWheelLocation = SteeringWheel->
+	GetComponentLocation();
+	FVector SteeringMCLocation = PrimaryController->
+	GetComponentLocation();
 
-	// Calcola la direzione dalla posizione del volante alla posizione della mano
-	FVector DirectionToHand = PrimaryController->GetComponentLocation() - WheelPosition;
-	//DirectionToHand.Z = 0; // Ignora l'asse Z per mantenere il volante sul piano orizzontale
-	DirectionToHand.Normalize();
+	// 2. Trova la rotazione necessaria per guardare il volante
+	// dal punto di vista della mano
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation
+	(SteeringMCLocation, SteeringWheelLocation);
 
-	// Calcola l'angolo Yaw tra il volante e la mano
-	FRotator TargetRotation = DirectionToHand.Rotation();
-	TargetRotation.Pitch = InitialRotation.Pitch;
-	TargetRotation.Roll = InitialRotation.Roll;
+	// 3. Converte la rotazione in un vettore
+	FVector LookAt = LookAtRotation.Vector();
 
-	// Limita la rotazione del volante tra -MaxSteeringAngle e MaxSteeringAngle
-	float DeltaYaw = TargetRotation.Yaw - HeldRotation.Yaw;
-	float ClampedYaw = FMath::Clamp(DeltaYaw, -MaxSteeringAngle, MaxSteeringAngle);
-    TargetRotation.Yaw = ClampedYaw;
+	// 4. Ottieni il vettore direzionale della
+	// rotazione globale del volante
+	FVector SteeringWheelDirection = SteeringWheel->GetRightVector();
+	
+	// 5. Calcola il Dot Product Tra i due vettori
+	float DotProduct = FVector::DotProduct
+	(LookAt, SteeringWheelDirection);
+	
+	// 6. Normalizza l'angolo usando NormalizeAxis
+	float NormalizedAngle = UKismetMathLibrary::NormalizeAxis
+	(DotProduct) * 50;
 
-	SteeringWheel->SetWorldRotation(TargetRotation);
+	// 7. Applica la rotazione calcolata localmente al volante
+	FRotator DeltaRotation = FRotator
+	(0.0f, NormalizedAngle, 0.0f);
+	// Regola il moltiplicatore (10) per un comportamento realistico
+	SteeringWheel->AddLocalRotation(DeltaRotation);
+	
+	// 8. Log per debug
+	// FString DebugMessage = FString::Printf
+	// (TEXT("Yaw: %f, Normalized Yaw: %f, Dot Yaw: %f"),
+	// 	SteeringWheel->GetRelativeRotation().Yaw, NormalizedAngle, DotProduct);
+	//
+	// GEngine->AddOnScreenDebugMessage
+	// (-1, 5.f, FColor::Green, DebugMessage);
 }
 
 void ASteeringWheelItem::RotateTowardsInit()
 {
-	FRotator targetRotation = SteeringWheel->GetComponentRotation();
+	FRotator targetRotation = SteeringWheel->GetRelativeRotation();
 	float absYaw = FMath::Abs(targetRotation.Yaw);
 	
 	float alphaLerp = BackToInit->GetFloatValue(absYaw / MaxSteeringAngle);
     
 	FRotator lerpedRotation = FMath::Lerp(targetRotation, InitialRotation, alphaLerp);
-	// lerpedRotation.Pitch = InitialRotation.Pitch;
-	// lerpedRotation.Roll = InitialRotation.Roll;
+	lerpedRotation.Pitch = InitialRotation.Pitch;
+	lerpedRotation.Roll = InitialRotation.Roll;
 	
-	SteeringWheel->SetWorldRotation(lerpedRotation);
+	Pivot->SetRelativeRotation(lerpedRotation); 
+}
+
+float ASteeringWheelItem::GetSteeringInput()
+{
+	float YawValue = SteeringWheel->GetRelativeRotation().Yaw;
+
+	if(YawValue >= 0)
+	{
+		YawValue -= 180;
+	}
+	else
+	{
+		YawValue += 180;
+	}
+	// Mappatura del valore di yaw da [-180, 180] a [-1, 1]
+	TRange<float> InputRange(-180.0f,180.0f);
+	TRange<float> OutputRange(-1.0f, 1.0f);
+	float ClampedRange = FMath::GetMappedRangeValueClamped(
+		InputRange, OutputRange, YawValue);
+	GEngine->AddOnScreenDebugMessage
+	(-1, 5.f, FColor::Yellow,
+		FString::Printf(
+			TEXT("Yaw Value: %f, Normal: %f"),
+			YawValue, ClampedRange));
+
+	return ClampedRange;
 }
 
 void ASteeringWheelItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(PrimaryController)
+	
+	if(PrimaryController != nullptr)
 	{
 		RotateTowardsHand();
 	}
-	else
+	else if(Pivot->GetRelativeRotation() != InitialRotation)
 	{
 		RotateTowardsInit();
 	}
 }
+
+void ASteeringWheelItem::GrabPoint(UMotionControllerComponent* controller, FVector position)
+{
+	Super::GrabPoint(controller, position);
+
+	if(controller->MotionSource == "Right")
+	{
+		RightHandPivot->SetWorldLocation(position);
+	}
+	else
+	{
+		LeftHandPivot->SetWorldLocation(position);
+	}
+}
+
+

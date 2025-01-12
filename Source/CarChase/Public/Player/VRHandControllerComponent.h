@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "MotionControllerComponent.h"
 #include "Components/ActorComponent.h"
+#include "Components/ArrowComponent.h"
+#include "GarbComponent/GrabItemComponent.h"
 #include "VRHandControllerComponent.generated.h"
 
 
@@ -29,29 +31,43 @@ public:
 
 	// Mesh della mano o del controller
 	UPROPERTY(VisibleAnywhere, Category = "VR")
+	UArrowComponent* HandPivot;
+	
+	UPROPERTY(VisibleAnywhere, Category = "VR")
 	USkeletalMeshComponent* HandMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "Grab")
+	AGrabItemComponent* GrabbedActor;
 	
-	// Variabili per tracciare lo stato di afferramento
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	bool bIsLeftHandGrabbing = false;
-	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	bool bIsRightHandGrabbing = false;
+	UPROPERTY(VisibleAnywhere, Category = "Grab")
+	float GrabRadius = 5.f;
 
 	// Funzioni per gestire lo stato di afferramento
 	UFUNCTION(BlueprintCallable)
-	void Grab(bool bIsRightHand);
+	void Grab();
 	
 	UFUNCTION(BlueprintCallable)
-	void Release(bool bIsRightHand);
+	void Release();
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsGrabbing() const;
 	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
 
 	UFUNCTION()
-	void SetHand(EControllerHand Hand);
+	void HandCaseAttach();
+
+	UFUNCTION(BlueprintCallable)
+	void GripTo();
+
+	UFUNCTION(BlueprintCallable)
+	void GrabPointTo();
+	
+	UFUNCTION(BlueprintCallable)
+	void ToGrip();
+
+	UFUNCTION(BlueprintCallable)
+	void Free();
+
 };

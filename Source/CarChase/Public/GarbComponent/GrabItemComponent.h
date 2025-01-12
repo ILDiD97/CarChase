@@ -33,6 +33,12 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Held")
 	bool IsAction;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USceneComponent* LeftHandPivot;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USceneComponent* RightHandPivot;
+
 	UPROPERTY(VisibleAnywhere, Category = "Held")
 	UMotionControllerComponent* RightController;
 	
@@ -46,6 +52,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+public:	
 	UFUNCTION(BlueprintCallable)
 	virtual void OnGrip(UMotionControllerComponent* controller);
 
@@ -58,7 +65,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void Action();
 	
-public:	
+	UFUNCTION(BlueprintCallable)
+	virtual void GrabPoint(UMotionControllerComponent* controller,FVector position);
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
