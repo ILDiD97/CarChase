@@ -26,6 +26,7 @@ ASteeringWheelItem::ASteeringWheelItem()
 void ASteeringWheelItem::BeginPlay()
 {
 	Super::BeginPlay();
+	InitialRotation = SteeringWheel->GetRelativeRotation();
 }
 
 void ASteeringWheelItem::OnGrip(UMotionControllerComponent* controller)
@@ -83,7 +84,7 @@ void ASteeringWheelItem::OnLeave(UMotionControllerComponent* controller)
 		PrimaryController = LeftController == nullptr ? RightController : LeftController;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("PrimaryController: %s"), PrimaryController ? *PrimaryController->GetName() : TEXT("None"));
+	//UE_LOG(LogTemp, Log, TEXT("PrimaryController: %s"), PrimaryController ? *PrimaryController->GetName() : TEXT("None"));
 }
 
 void ASteeringWheelItem::OnAction()
@@ -108,8 +109,17 @@ void ASteeringWheelItem::RotateTowardsHand()
 
 	// 2. Trova la rotazione necessaria per guardare il volante
 	// dal punto di vista della mano
-	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation
-	(SteeringMCLocation, SteeringWheelLocation);
+	FRotator LookAtRotation;
+	if(IsRightControlled())
+	{
+		LookAtRotation = UKismetMathLibrary::FindLookAtRotation
+		(SteeringMCLocation, SteeringWheelLocation);
+	}
+	else
+	{
+		LookAtRotation = UKismetMathLibrary::FindLookAtRotation
+		(SteeringWheelLocation, SteeringMCLocation);
+	}
 
 	// 3. Converte la rotazione in un vettore
 	FVector LookAt = LookAtRotation.Vector();
@@ -152,20 +162,23 @@ void ASteeringWheelItem::RotateTowardsInit()
 	lerpedRotation.Pitch = InitialRotation.Pitch;
 	lerpedRotation.Roll = InitialRotation.Roll;
 	
-	Pivot->SetRelativeRotation(lerpedRotation); 
+	SteeringWheel->SetRelativeRotation(lerpedRotation); 
 }
 
 float ASteeringWheelItem::GetSteeringInput()
 {
 	float YawValue = SteeringWheel->GetRelativeRotation().Yaw;
 
-	if(YawValue >= 0)
+	if(PrimaryController && IsRightControlled())
 	{
-		YawValue -= 180;
-	}
-	else
-	{
-		YawValue += 180;
+		if(YawValue >= 0)
+		{
+			YawValue -= 180;
+		}
+		else
+		{
+			YawValue += 180;
+		}
 	}
 	
 	// Mappatura del valore di yaw da [-180, 180] a [-1, 1]
@@ -191,7 +204,7 @@ void ASteeringWheelItem::Tick(float DeltaTime)
 	{
 		RotateTowardsHand();
 	}
-	else if(Pivot->GetRelativeRotation() != InitialRotation)
+	else if(SteeringWheel->GetRelativeRotation().Yaw != InitialRotation.Yaw)
 	{
 		RotateTowardsInit();
 	}

@@ -25,8 +25,6 @@ AVRCarChasePawn::AVRCarChasePawn()
 	LeftHandController->HandPivot->SetRelativeRotation(
 		 FRotator(-25.000000,-179.999999,89.999999));
 	
-	LeftHandController->HandMesh->SetupAttachment(LeftHandController->HandPivot);
-	
 	RightHandController = CreateDefaultSubobject<UVRHandControllerComponent>(TEXT("RightHandController"));
 	
 	RightHandController->MotionController->MotionSource = FName("Right");
@@ -35,8 +33,6 @@ AVRCarChasePawn::AVRCarChasePawn()
 	RightHandController->HandPivot->SetupAttachment(VROrigin);
 	RightHandController->HandPivot->SetRelativeRotation(
 		FRotator(25.000000,0.000000,89.999999));
-	
-	RightHandController->HandMesh->SetupAttachment(RightHandController->HandPivot);
 
 	SteeringWheelComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("SteeringWheelComponent"));
 	SteeringWheelComponent->SetupAttachment(VROrigin);

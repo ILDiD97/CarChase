@@ -14,7 +14,7 @@ UVRHandControllerComponent::UVRHandControllerComponent()
 
 	MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Controller"));
 	HandPivot = CreateDefaultSubobject<UArrowComponent>(TEXT("HandPivot"));
-	HandMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("HandMesh"));
+
 	// ...
 }
 
@@ -130,7 +130,7 @@ void UVRHandControllerComponent::GrabPointTo()
 		if (HitResult.GetActor() == GrabbedActor)
 		{
 			// Punto di impatto sulla mesh del volante
-			DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 5.0f, 12, FColor::Blue, false, 1.0f);
+			//DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 5.0f, 12, FColor::Blue, false, 1.0f);
 			GrabbedActor->GrabPoint(MotionController, HitResult.ImpactPoint);
 		}
 	}
@@ -144,7 +144,11 @@ void UVRHandControllerComponent::ToGrip()
 void UVRHandControllerComponent::Free()
 {
 	HandPivot->AttachToComponent(MotionController, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	HandPivot->SetRelativeRotation(FRotator(0,0,90));
+
+	if(MotionController->MotionSource == "Right")
+		HandPivot->SetRelativeRotation(FRotator(0,0,90));
+	else
+		HandPivot->SetRelativeRotation(FRotator(180,0,-90));
 }
 
 

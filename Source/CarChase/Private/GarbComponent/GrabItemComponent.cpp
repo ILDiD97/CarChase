@@ -31,6 +31,11 @@ void AGrabItemComponent::GrabPoint(UMotionControllerComponent* controller, FVect
 {
 }
 
+bool AGrabItemComponent::IsRightControlled()
+{
+	return PrimaryController->MotionSource == "Right";		
+}
+
 // Called when the game starts or when spawned
 void AGrabItemComponent::BeginPlay()
 {

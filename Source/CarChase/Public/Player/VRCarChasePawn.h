@@ -73,10 +73,10 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "VR")
 	USceneComponent* VROrigin;
 	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR")
 	UVRHandControllerComponent* LeftHandController;
 	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR")
 	UVRHandControllerComponent* RightHandController;
 
 	UPROPERTY(EditAnywhere, Category="SteeringWheel")

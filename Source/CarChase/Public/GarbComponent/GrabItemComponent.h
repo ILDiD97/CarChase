@@ -67,6 +67,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	virtual void GrabPoint(UMotionControllerComponent* controller,FVector position);
+
+	UFUNCTION(BlueprintPure)
+	virtual bool IsRightControlled();
 	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

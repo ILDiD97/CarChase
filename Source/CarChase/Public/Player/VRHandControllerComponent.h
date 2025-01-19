@@ -30,12 +30,9 @@ public:
 	UMotionControllerComponent* MotionController;
 
 	// Mesh della mano o del controller
-	UPROPERTY(VisibleAnywhere, Category = "VR")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR")
 	UArrowComponent* HandPivot;
 	
-	UPROPERTY(VisibleAnywhere, Category = "VR")
-	USkeletalMeshComponent* HandMesh;
-
 	UPROPERTY(VisibleAnywhere, Category = "Grab")
 	AGrabItemComponent* GrabbedActor;
 	
